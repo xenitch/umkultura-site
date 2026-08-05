@@ -129,3 +129,40 @@ def test_группировка_архива_свежие_сверху():
     years = afisha.group_archive(past)
     assert [y for y, _ in years] == [2026, 2025]
     assert [m for m, _ in years[0][1]] == ["Сентябрь", "Август"]
+
+
+import io as _io
+
+
+class _FakeResponse(_io.BytesIO):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        pass
+
+
+def test_fetch_сохраняет_копию(tmp_path, monkeypatch):
+    monkeypatch.setattr(afisha.urllib.request, "urlopen",
+                        lambda url, timeout: _FakeResponse(CSV.encode("utf-8")))
+    cache = tmp_path / "data" / "afisha.csv"
+    assert afisha.fetch_csv(cache) == CSV
+    assert cache.read_text(encoding="utf-8") == CSV
+
+
+def test_фолбэк_на_копию_без_сети(tmp_path, monkeypatch, capsys):
+    def boom(url, timeout):
+        raise OSError("нет сети")
+    monkeypatch.setattr(afisha.urllib.request, "urlopen", boom)
+    cache = tmp_path / "afisha.csv"
+    cache.write_text(CSV, encoding="utf-8")
+    assert afisha.fetch_csv(cache) == CSV
+    assert "data/afisha.csv" in capsys.readouterr().err
+
+
+def test_без_сети_и_без_копии_понятная_ошибка(tmp_path, monkeypatch):
+    def boom(url, timeout):
+        raise OSError("нет сети")
+    monkeypatch.setattr(afisha.urllib.request, "urlopen", boom)
+    with pytest.raises(SystemExit, match="запасной копии"):
+        afisha.fetch_csv(tmp_path / "нет.csv")

@@ -135,3 +135,21 @@ def group_archive(past):
             months.append((label, []))
         months[-1][1].append(e)
     return years
+
+
+def fetch_csv(cache_path, url=CSV_URL, timeout=20):
+    cache_path = Path(cache_path)
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as resp:
+            text = resp.read().decode("utf-8")
+    except OSError:
+        if cache_path.exists():
+            print("⚠ таблица недоступна, собираю из data/afisha.csv",
+                  file=sys.stderr)
+            return cache_path.read_text(encoding="utf-8")
+        raise SystemExit(
+            "Афиша: Google-таблица недоступна, и запасной копии "
+            "data/afisha.csv тоже нет — собрать нечего.")
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    cache_path.write_text(text, encoding="utf-8")
+    return text
