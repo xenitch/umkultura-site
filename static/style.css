@@ -1,0 +1,72 @@
+/* Палитра: бумага/чернила/индиго/терракота/золото */
+:root {
+  --paper: #f7f2e6; --ink: #26221c; --indigo: #2b3a67; --terra: #a34a2e;
+  --gold: #b08d3f; --muted: #6d6152;
+}
+@font-face { font-family: "Old Standard TT"; src: url(/static/fonts/old-standard-tt-v22-cyrillic_latin-regular.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Old Standard TT"; src: url(/static/fonts/old-standard-tt-v22-cyrillic_latin-700.woff2) format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Old Standard TT"; src: url(/static/fonts/old-standard-tt-v22-cyrillic_latin-italic.woff2) format("woff2"); font-style: italic; font-display: swap; }
+@font-face { font-family: "Literata"; src: url(/static/fonts/literata-v40-cyrillic_latin-regular.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Literata"; src: url(/static/fonts/literata-v40-cyrillic_latin-700.woff2) format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Literata"; src: url(/static/fonts/literata-v40-cyrillic_latin-italic.woff2) format("woff2"); font-style: italic; font-display: swap; }
+
+html { background: var(--paper); color: var(--ink); }
+body {
+  margin: 0 auto; padding: 2.5rem 1.25rem 4rem; max-width: 42rem;
+  font: 400 1.125rem/1.65 "Literata", "PT Serif", Georgia, serif;
+  hyphens: auto; font-feature-settings: "onum" 1;
+}
+h1, h2, h3 { font-family: "Old Standard TT", Georgia, serif; line-height: 1.2; font-weight: 700; }
+h1 { font-size: 2.1rem; margin: 0.4em 0; }
+a { color: var(--indigo); text-decoration-color: rgba(176, 141, 63, 0.6); text-underline-offset: 3px; }
+a:hover { color: var(--terra); }
+.kicker, .site-nav a { font-family: "Old Standard TT", serif;
+  font-variant-caps: all-small-caps; letter-spacing: 0.08em; }
+.kicker { color: var(--terra); margin: 0; }
+
+.site-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  border-bottom: 1px solid var(--gold); padding-bottom: 0.75rem; margin-bottom: 2.5rem; }
+.logo-book { width: 4.5rem; height: auto; display: block; }
+.site-nav a { text-decoration: none; color: var(--ink); }
+.site-nav a.current, .site-nav a:hover { color: var(--terra); }
+
+.page-header { margin-bottom: 1.5rem; }
+
+/* Оглавление сезона и библиотека */
+.toc-month { font-family: "Old Standard TT", serif; font-variant-caps: all-small-caps;
+  letter-spacing: 0.12em; text-align: center; color: var(--terra);
+  font-size: 1.05rem; font-weight: 400; margin: 1.6em 0 0.5em; }
+.toc-month::before, .toc-month::after { content: " ·· "; color: var(--gold); }
+.toc-year { font-family: "Old Standard TT", serif; text-align: center;
+  font-size: 1.5rem; margin: 1.4em 0 0.2em; }
+.toc-row { display: flex; align-items: baseline; margin: 0.6em 0 0; }
+.toc-book { font-family: "Old Standard TT", serif; font-weight: 700; }
+.toc-author { font-style: italic; color: var(--muted); }
+.toc-dots { flex: 1; border-bottom: 2px dotted rgba(176, 141, 63, 0.7);
+  margin: 0 0.4em 0.3em; min-width: 1.5rem; }
+.toc-date { color: var(--indigo); font-variant-caps: all-small-caps; white-space: nowrap; }
+.toc-club { font-size: 0.8em; color: var(--muted); margin: 0.1em 0 0.4em; }
+.toc-club a { color: var(--muted); }
+.toc-club-right { white-space: nowrap; font-size: 0.9em; }
+.fleuron { text-align: center; color: var(--gold); margin: 2em 0 0; }
+hr { border: 0; text-align: center; margin: 2.5em 0; }
+hr::after { content: "❦"; color: var(--gold); font-size: 1.1em; }
+blockquote { margin: 1.5em 0; padding-left: 1.25em; border-left: 2px solid var(--gold);
+  font-style: italic; color: var(--muted); }
+
+/* Каталог клубов */
+.club { border-top: 1px solid rgba(176, 141, 63, 0.45); padding: 0.8em 0 0.6em; }
+.club h3 { margin: 0; }
+.club p { margin: 0.2em 0; }
+.club .contact { font-size: 0.85em; }
+
+.site-footer { margin-top: 4rem; border-top: 1px solid var(--gold); padding-top: 1rem;
+  color: var(--muted); font-size: 0.9em; }
+
+/* Главная-заглушка */
+.home-main { min-height: 70vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; }
+.home-main .logo-book { width: 6rem; }
+.home-phrase { font-family: "Old Standard TT", serif; font-size: 1.6rem;
+  line-height: 1.35; max-width: 26rem; margin: 1.2em 0 0; }
+.home-orn { color: var(--gold); margin-top: 1.2em; font-size: 1.1em; }
