@@ -57,3 +57,37 @@ def parse_date_field(raw):
         joined = " и ".join(str(d) for d in days)
         return ParsedDate(month, days, f"{joined} {GEN_BY_NUM[month]}")
     raise AfishaError(f"непонятная дата: {raw!r}")
+
+
+@dataclass
+class Event:
+    book: str
+    author: str
+    club: str
+    contact: str
+    year: int
+    when: ParsedDate
+    is_vote: bool = False
+
+
+def load_events(csv_text):
+    events = []
+    for i, raw_row in enumerate(csv.DictReader(io.StringIO(csv_text)), start=2):
+        row = {(k or "").strip(): (v or "").strip() for k, v in raw_row.items()}
+        if not any(row.values()):
+            continue
+        year_key = next((k for k in row if k.lower().startswith("год")), "")
+        try:
+            year = int(row.get(year_key, ""))
+            when = parse_date_field(row.get("Дата обсуждения", ""))
+        except (AfishaError, ValueError) as exc:
+            raise AfishaError(f"строка {i}: {exc}") from None
+        book = row.get("Книга", "")
+        is_vote = "голосован" in book.lower()
+        events.append(Event(
+            book="Книгу выберут голосованием" if is_vote else book,
+            author=row.get("Автор", ""),
+            club=row.get("В каком клубе обсуждают", ""),
+            contact=row.get("Контакты клуба", ""),
+            year=year, when=when, is_vote=is_vote))
+    return events
