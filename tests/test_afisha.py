@@ -72,3 +72,60 @@ def test_ошибка_с_номером_строки():
     bad = CSV + "потом,«Книга»,Автор,Клуб,https://example.com,2026\n"
     with pytest.raises(AfishaError, match="строка 5"):
         afisha.load_events(bad)
+
+
+def _ev(raw, year=2026):
+    return afisha.Event(book="К", author="А", club="Клуб", contact="",
+                        year=year, when=parse_date_field(raw))
+
+
+def test_точная_дата_в_архив_со_следующего_дня():
+    e = _ev("10 августа")
+    assert afisha.is_past(e, date(2026, 8, 10)) is False
+    assert afisha.is_past(e, date(2026, 8, 11)) is True
+
+
+def test_месяц_в_архив_с_первого_числа_следующего():
+    e = _ev("август")
+    assert afisha.is_past(e, date(2026, 8, 31)) is False
+    assert afisha.is_past(e, date(2026, 9, 1)) is True
+
+
+def test_декабрь_переходит_через_год():
+    e = _ev("декабрь")
+    assert afisha.is_past(e, date(2026, 12, 31)) is False
+    assert afisha.is_past(e, date(2027, 1, 1)) is True
+
+
+def test_несколько_дат_по_последней():
+    e = _ev("13.08, 15.08")
+    assert afisha.is_past(e, date(2026, 8, 14)) is False
+    assert afisha.is_past(e, date(2026, 8, 16)) is True
+
+
+def test_прошедшее_голосование_не_попадает_в_архив():
+    up, past = afisha.split_events(afisha.load_events(CSV), date(2027, 1, 1))
+    assert up == []
+    assert all(not e.is_vote for e in past)
+    assert len(past) == 2
+
+
+def test_группировка_оглавления():
+    up, _ = afisha.split_events(afisha.load_events(CSV), date(2026, 8, 1))
+    groups = afisha.group_schedule(up, date(2026, 8, 1))
+    assert [g[0] for g in groups] == ["Август", "Октябрь"]
+    август = groups[0][1]
+    assert август[0].when.display == "в течение месяца"   # месяц-без-даты первым
+    assert август[1].when.display == "10 августа"
+
+
+def test_метка_месяца_другого_года():
+    groups = afisha.group_schedule([_ev("январь", year=2027)], date(2026, 8, 1))
+    assert groups[0][0] == "Январь 2027"
+
+
+def test_группировка_архива_свежие_сверху():
+    past = [_ev("10 августа"), _ev("сентябрь"), _ev("май", year=2025)]
+    years = afisha.group_archive(past)
+    assert [y for y, _ in years] == [2026, 2025]
+    assert [m for m, _ in years[0][1]] == ["Сентябрь", "Август"]

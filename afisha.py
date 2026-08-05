@@ -91,3 +91,47 @@ def load_events(csv_text):
             contact=row.get("Контакты клуба", ""),
             year=year, when=when, is_vote=is_vote))
     return events
+
+
+def is_past(event, today):
+    y, m = event.year, event.when.month
+    if event.when.days:
+        return date(y, m, max(event.when.days)) < today
+    first_of_next = date(y + (m == 12), m % 12 + 1, 1)
+    return first_of_next <= today
+
+
+def split_events(events, today):
+    upcoming = [e for e in events if not is_past(e, today)]
+    past = [e for e in events if is_past(e, today) and not e.is_vote]
+    return upcoming, past
+
+
+def _sort_key(e):
+    day = min(e.when.days) if e.when.days else 0
+    return (e.year, e.when.month, day)
+
+
+def group_schedule(upcoming, today):
+    groups = []
+    for e in sorted(upcoming, key=_sort_key):
+        label = MONTH_TITLE[e.when.month]
+        if e.year != today.year:
+            label = f"{label} {e.year}"
+        if not groups or groups[-1][0] != label:
+            groups.append((label, []))
+        groups[-1][1].append(e)
+    return groups
+
+
+def group_archive(past):
+    years = []
+    for e in sorted(past, key=_sort_key, reverse=True):
+        if not years or years[-1][0] != e.year:
+            years.append((e.year, []))
+        months = years[-1][1]
+        label = MONTH_TITLE[e.when.month]
+        if not months or months[-1][0] != label:
+            months.append((label, []))
+        months[-1][1].append(e)
+    return years
