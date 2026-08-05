@@ -1,0 +1,15 @@
+{% extends "skeleton.html" %}
+{% block body %}
+  <header class="site-header">
+    <a href="/bookclubs/" aria-label="Книжные клубы Кемерова">{% include "_logo.html" %}</a>
+    <nav class="site-nav">
+      <a href="/bookclubs/"{% if page.url == '/bookclubs/' %} class="current"{% endif %}>Клубы</a> ·
+      <a href="/bookclubs/schedule/"{% if page.url == '/bookclubs/schedule/' %} class="current"{% endif %}>Будущие чтения</a> ·
+      <a href="/bookclubs/archive/"{% if page.url == '/bookclubs/archive/' %} class="current"{% endif %}>Библиотека</a>
+    </nav>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer class="site-footer">
+    <p>Клуб книжных клубов · Кемерово</p>
+  </footer>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="prose">
+  <header class="page-header">
+    {% if page.meta.kicker %}<p class="kicker">{{ page.meta.kicker | e }}</p>{% endif %}
+    {% if page.meta.title %}<h1>{{ page.meta.title | e }}</h1>{% endif %}
+  </header>
+  {{ page.content }}
+</article>
+{% endblock %}

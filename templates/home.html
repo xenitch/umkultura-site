@@ -1,0 +1,8 @@
+{% extends "skeleton.html" %}
+{% block body %}
+  <main class="home-main">
+    {% include "_logo.html" %}
+    <p class="home-phrase">{{ page.meta.phrase | e }}</p>
+    <p class="home-orn">❦</p>
+  </main>
+{% endblock %}

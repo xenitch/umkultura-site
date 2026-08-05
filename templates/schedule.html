@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="prose">
+  <header class="page-header">
+    <p class="kicker">{{ page.meta.kicker | e }}</p>
+    <h1>{{ page.meta.title | e }}</h1>
+  </header>
+  {{ page.content }}
+</article>
+<section class="toc">
+  {% for label, events in schedule_groups %}
+  <h2 class="toc-month">{{ label }}</h2>
+    {% for e in events %}
+  <div class="toc-row">
+    <span class="toc-item"><span class="toc-book">{{ e.book | e }}</span>
+      {% if e.author %} <span class="toc-author">{{ e.author | e }}</span>{% endif %}</span>
+    <span class="toc-dots"></span>
+    <span class="toc-date">{{ e.when.display }}</span>
+  </div>
+  <p class="toc-club"><a href="{{ e.contact | e }}">{{ e.club | e }}</a></p>
+    {% endfor %}
+  {% endfor %}
+  <p class="fleuron">❦</p>
+</section>
+{% endblock %}

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.meta.title and page.url != '/' %}{{ page.meta.title | e }} — {{ site.name | e }}{% else %}{{ site.name | e }}{% endif %}</title>
+  <meta name="description" content="{{ (page.meta.description or site.description) | e }}">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% block body %}{% endblock %}
+</body>
+</html>
