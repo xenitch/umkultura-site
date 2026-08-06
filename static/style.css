@@ -48,6 +48,13 @@ a:hover { color: var(--terra); }
 .toc-club { font-size: 0.8em; color: var(--muted); margin: 0.1em 0 0.4em; }
 .toc-club a { color: var(--muted); }
 .toc-club-right { white-space: nowrap; font-size: 0.9em; }
+/* Узкие экраны: без отточия, дата продолжает строку после автора через тире */
+@media (max-width: 40rem) {
+  .toc-row { display: block; }
+  .toc-item { display: inline; }
+  .toc-dots { display: none; }
+  .toc-date::before, .toc-club-right::before { content: " — "; }
+}
 .fleuron { text-align: center; color: var(--gold); margin: 2em 0 0; }
 hr { border: 0; text-align: center; margin: 2.5em 0; }
 hr::after { content: "❦"; color: var(--gold); font-size: 1.1em; }
