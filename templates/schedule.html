@@ -12,8 +12,7 @@
   <h2 class="toc-month">{{ label }}</h2>
     {% for e in events %}
   <div class="toc-row">
-    <span class="toc-item"><span class="toc-book">{{ e.book | e }}</span>
-      {% if e.author %} <span class="toc-author">{{ e.author | e }}</span>{% endif %}</span>
+    <span class="toc-item"><span class="toc-book">{{ e.book | e }}</span>{% if e.author %}, <span class="toc-author">{{ e.author | e }}</span>{% endif %}</span>
     <span class="toc-dots"></span>
     <span class="toc-date">{{ e.when.display }}</span>
   </div>
