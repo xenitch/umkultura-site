@@ -18,8 +18,9 @@ def test_полная_сборка(tmp_path):
     root = _make_project(tmp_path)
     build.build(root, today=date(2026, 9, 1), fetch=lambda cache: CSV)
     out = root / "docs"
-    for page in ("", "bookclubs", "bookclubs/schedule", "bookclubs/archive"):
+    for page in ("", "bookclubs", "bookclubs/archive"):
         assert (out / page / "index.html").exists(), page
+    assert not (out / "bookclubs/schedule").exists()    # афиша переехала на /bookclubs/
     assert (out / "CNAME").read_text(encoding="utf-8") == "umkultura.ru"
     assert (out / ".nojekyll").exists()
     assert (out / "static" / "style.css").exists()
@@ -28,7 +29,7 @@ def test_полная_сборка(tmp_path):
     assert "Пространство развития умственной" in home
     assert "site-nav" not in home                       # заглушка без навигации
 
-    schedule = (out / "bookclubs/schedule/index.html").read_text(encoding="utf-8")
+    schedule = (out / "bookclubs/index.html").read_text(encoding="utf-8")
     assert "Книгу выберут голосованием" in schedule     # будущая строка-голосование
     assert "«Элегантность ёжика»" not in schedule       # 10 августа уже прошло
 
