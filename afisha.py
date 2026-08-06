@@ -72,11 +72,24 @@ class Event:
 
 def load_events(csv_text):
     events = []
+    ended = False  # первая пустая строка объявляет таблицу событий закрытой
     for i, raw_row in enumerate(csv.DictReader(io.StringIO(csv_text)), start=2):
         row = {(k or "").strip(): (v or "").strip() for k, v in raw_row.items()}
-        if not any(row.values()):
-            break  # пустая строка отделяет таблицу событий от контента ниже
         year_key = next((k for k in row if k.lower().startswith("год")), "")
+        if not any(row.values()):
+            ended = True
+            continue
+        if ended:
+            # Хвост листа после первой пустой строки: в реальной таблице
+            # там справочник клубов — у него всегда пуст год. Если год
+            # заполнен, это похоже на событие, забытое под пустой строкой —
+            # тихо его не проглатываем, а падаем с номером строки.
+            if row.get(year_key, ""):
+                raise AfishaError(
+                    f"строка {i}: похоже на событие после пустой строки — "
+                    "таблица событий уже закончилась (первая пустая строка "
+                    "считается её концом)")
+            continue
         try:
             year = int(row.get(year_key, ""))
             when = parse_date_field(row.get("Дата обсуждения", ""))
