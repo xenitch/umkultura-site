@@ -68,6 +68,16 @@ def test_пустые_строки_пропускаются():
     assert len(events) == 3
 
 
+def test_контент_после_пустой_строки_игнорируется():
+    # Реальная таблица содержит внизу справочник клубов после пустых строк —
+    # это не события, парсить их как строки таблицы не нужно.
+    footer = (",,,,,\n" * 3 +
+              "В каком клубе обсуждают,,,,,\n"
+              "Это просто книжный клуб,https://vk.ru/prosto_book_club,,,,\n")
+    events = afisha.load_events(CSV + footer)
+    assert len(events) == 3
+
+
 def test_ошибка_с_номером_строки():
     bad = CSV + "потом,«Книга»,Автор,Клуб,https://example.com,2026\n"
     with pytest.raises(AfishaError, match="строка 5"):

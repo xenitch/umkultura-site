@@ -75,7 +75,7 @@ def load_events(csv_text):
     for i, raw_row in enumerate(csv.DictReader(io.StringIO(csv_text)), start=2):
         row = {(k or "").strip(): (v or "").strip() for k, v in raw_row.items()}
         if not any(row.values()):
-            continue
+            break  # пустая строка отделяет таблицу событий от контента ниже
         year_key = next((k for k in row if k.lower().startswith("год")), "")
         try:
             year = int(row.get(year_key, ""))
