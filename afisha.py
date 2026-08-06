@@ -41,6 +41,8 @@ def parse_date_field(raw):
     m = re.fullmatch(r"(\d{1,2}) ([а-я]+)", s)
     if m and m.group(2) in MONTHS_GEN:
         day = int(m.group(1))
+        if not 1 <= day <= 31:
+            raise AfishaError(f"нет такого дня: {raw!r}")
         return ParsedDate(MONTHS_GEN[m.group(2)], [day], f"{day} {m.group(2)}")
     if re.fullmatch(r"[\d., ;]+", s):
         days, month = [], None
@@ -48,10 +50,13 @@ def parse_date_field(raw):
             m = re.fullmatch(r"(\d{1,2})\.(\d{1,2})\.?", part)
             if not m:
                 raise AfishaError(f"непонятная дата: {raw!r}")
+            day = int(m.group(1))
+            if not 1 <= day <= 31:
+                raise AfishaError(f"нет такого дня: {raw!r}")
             if month is not None and int(m.group(2)) != month:
                 raise AfishaError(f"даты из разных месяцев: {raw!r}")
             month = int(m.group(2))
-            days.append(int(m.group(1)))
+            days.append(day)
         if month not in GEN_BY_NUM:
             raise AfishaError(f"нет такого месяца: {raw!r}")
         joined = " и ".join(str(d) for d in days)
@@ -155,7 +160,10 @@ def fetch_csv(cache_path, url=CSV_URL, timeout=20):
     try:
         with urllib.request.urlopen(url, timeout=timeout) as resp:
             text = resp.read().decode("utf-8")
-    except OSError:
+        first_line = text.split("\n", 1)[0]
+        if "Дата обсуждения" not in first_line:
+            raise ValueError("непохоже на CSV афиши")
+    except (OSError, UnicodeDecodeError, ValueError):
         if cache_path.exists():
             print("⚠ таблица недоступна, собираю из data/afisha.csv",
                   file=sys.stderr)

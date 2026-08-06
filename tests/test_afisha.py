@@ -39,6 +39,16 @@ def test_даты_из_разных_месяцев_даёт_ошибку():
         parse_date_field("13.08, 15.09")
 
 
+def test_недопустимый_день_числом_даёт_ошибку():
+    with pytest.raises(AfishaError):
+        parse_date_field("35.08")
+
+
+def test_недопустимый_день_словом_даёт_ошибку():
+    with pytest.raises(AfishaError):
+        parse_date_field("35 августа")
+
+
 CSV = """Дата обсуждения,Книга,Автор,В каком клубе обсуждают,Контакты клуба,год (для определения архива)
 10 августа,«Элегантность ёжика»,Мюриель Барбери,Это просто книжный клуб,https://vk.ru/prosto_book_club,2026
 август,«Мартин Иден»,Джек Лондон,Клуб нескучных чтений,https://t.me/ReadingClubLibrary,2026
@@ -188,3 +198,31 @@ def test_без_сети_и_без_копии_понятная_ошибка(tmp_
     monkeypatch.setattr(afisha.urllib.request, "urlopen", boom)
     with pytest.raises(SystemExit, match="запасной копии"):
         afisha.fetch_csv(tmp_path / "нет.csv")
+
+
+def test_мусор_вместо_csv_откатывается_на_копию(tmp_path, monkeypatch, capsys):
+    html = "<html><body>переадресация...</body></html>"
+    monkeypatch.setattr(afisha.urllib.request, "urlopen",
+                        lambda url, timeout: _FakeResponse(html.encode("utf-8")))
+    cache = tmp_path / "afisha.csv"
+    cache.write_text(CSV, encoding="utf-8")
+    assert afisha.fetch_csv(cache) == CSV
+    assert cache.read_text(encoding="utf-8") == CSV
+    assert "недоступн" in capsys.readouterr().err
+
+
+def test_мусор_вместо_csv_без_копии_понятная_ошибка(tmp_path, monkeypatch):
+    html = "<html><body>переадресация...</body></html>"
+    monkeypatch.setattr(afisha.urllib.request, "urlopen",
+                        lambda url, timeout: _FakeResponse(html.encode("utf-8")))
+    with pytest.raises(SystemExit, match="запасной копии"):
+        afisha.fetch_csv(tmp_path / "нет.csv")
+
+
+def test_недекодируемый_ответ_откатывается_на_копию(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(afisha.urllib.request, "urlopen",
+                        lambda url, timeout: _FakeResponse(b"\xff\xfe\x00\x01"))
+    cache = tmp_path / "afisha.csv"
+    cache.write_text(CSV, encoding="utf-8")
+    assert afisha.fetch_csv(cache) == CSV
+    assert cache.read_text(encoding="utf-8") == CSV
