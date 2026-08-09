@@ -226,3 +226,24 @@ def test_недекодируемый_ответ_откатывается_на_�
     cache.write_text(CSV, encoding="utf-8")
     assert afisha.fetch_csv(cache) == CSV
     assert cache.read_text(encoding="utf-8") == CSV
+
+
+def test_диапазон_с_по():
+    pd = parse_date_field("с 1 по 20 сентября")
+    assert (pd.month, pd.days, pd.display) == (9, [1, 20], "с 1 по 20 сентября")
+
+
+def test_диапазон_через_тире():
+    pd = parse_date_field("1—31 августа")
+    assert (pd.month, pd.days, pd.display) == (8, [1, 31], "1—31 августа")
+
+
+def test_диапазон_с_недопустимым_днём():
+    with pytest.raises(AfishaError):
+        parse_date_field("с 1 по 40 сентября")
+
+
+def test_колонка_ссылка_на_клуб():
+    csv_new = CSV.replace("Контакты клуба", "Ссылка на клуб")
+    events = afisha.load_events(csv_new)
+    assert events[0].contact == "https://vk.ru/prosto_book_club"

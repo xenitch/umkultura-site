@@ -44,6 +44,14 @@ def parse_date_field(raw):
         if not 1 <= day <= 31:
             raise AfishaError(f"нет такого дня: {raw!r}")
         return ParsedDate(MONTHS_GEN[m.group(2)], [day], f"{day} {m.group(2)}")
+    # Диапазоны: «с 1 по 20 сентября» и «1—31 августа»
+    m = (re.fullmatch(r"с (\d{1,2}) по (\d{1,2}) ([а-я]+)", s)
+         or re.fullmatch(r"(\d{1,2}) ?[—–-] ?(\d{1,2}) ([а-я]+)", s))
+    if m and m.group(3) in MONTHS_GEN:
+        first, last = int(m.group(1)), int(m.group(2))
+        if not (1 <= first <= 31 and 1 <= last <= 31):
+            raise AfishaError(f"нет такого дня: {raw!r}")
+        return ParsedDate(MONTHS_GEN[m.group(3)], [first, last], s)
     if re.fullmatch(r"[\d., ;]+", s):
         days, month = [], None
         for part in re.split(r"[,;] *", s):
@@ -106,7 +114,8 @@ def load_events(csv_text):
             book="Книгу выберут голосованием" if is_vote else book,
             author=row.get("Автор", ""),
             club=row.get("В каком клубе обсуждают", ""),
-            contact=row.get("Контакты клуба", ""),
+            contact=next((v for k, v in row.items()
+                          if k.lower().startswith(("контакт", "ссылка"))), ""),
             year=year, when=when, is_vote=is_vote))
     return events
 
