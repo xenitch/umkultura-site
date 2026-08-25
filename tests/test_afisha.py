@@ -247,3 +247,8 @@ def test_колонка_ссылка_на_клуб():
     csv_new = CSV.replace("Контакты клуба", "Ссылка на клуб")
     events = afisha.load_events(csv_new)
     assert events[0].contact == "https://vk.ru/prosto_book_club"
+
+
+def test_список_дней_со_словом_месяцем():
+    pd = parse_date_field("17,19 сентября")
+    assert (pd.month, pd.days, pd.display) == (9, [17, 19], "17 и 19 сентября")

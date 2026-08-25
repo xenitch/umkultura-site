@@ -44,6 +44,14 @@ def parse_date_field(raw):
         if not 1 <= day <= 31:
             raise AfishaError(f"нет такого дня: {raw!r}")
         return ParsedDate(MONTHS_GEN[m.group(2)], [day], f"{day} {m.group(2)}")
+    # Несколько дней со словом-месяцем: «17,19 сентября» → «17 и 19 сентября»
+    m = re.fullmatch(r"(\d{1,2}(?: ?[,и] ?\d{1,2})+) ([а-я]+)", s)
+    if m and m.group(2) in MONTHS_GEN:
+        days = [int(d) for d in re.findall(r"\d{1,2}", m.group(1))]
+        if any(not 1 <= d <= 31 for d in days):
+            raise AfishaError(f"нет такого дня: {raw!r}")
+        joined = " и ".join(str(d) for d in days)
+        return ParsedDate(MONTHS_GEN[m.group(2)], days, f"{joined} {m.group(2)}")
     # Диапазоны: «с 1 по 20 сентября» и «1—31 августа»
     m = (re.fullmatch(r"с (\d{1,2}) по (\d{1,2}) ([а-я]+)", s)
          or re.fullmatch(r"(\d{1,2}) ?[—–-] ?(\d{1,2}) ([а-я]+)", s))
