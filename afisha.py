@@ -59,7 +59,7 @@ def parse_date_field(raw):
         first, last = int(m.group(1)), int(m.group(2))
         if not (1 <= first <= 31 and 1 <= last <= 31):
             raise AfishaError(f"нет такого дня: {raw!r}")
-        return ParsedDate(MONTHS_GEN[m.group(3)], [first, last], s)
+        return ParsedDate(MONTHS_GEN[m.group(3)], [first, last], re.sub(r" ?[—–-] ?", "—", s))
     if re.fullmatch(r"[\d., ;]+", s):
         days, month = [], None
         for part in re.split(r"[,;] *", s):

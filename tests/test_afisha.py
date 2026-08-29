@@ -252,3 +252,7 @@ def test_колонка_ссылка_на_клуб():
 def test_список_дней_со_словом_месяцем():
     pd = parse_date_field("17,19 сентября")
     assert (pd.month, pd.days, pd.display) == (9, [17, 19], "17 и 19 сентября")
+
+
+def test_диапазон_через_дефис_показывается_тире():
+    assert parse_date_field("1-15 октября").display == "1—15 октября"
