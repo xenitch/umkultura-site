@@ -29,6 +29,7 @@ def test_placeholder_style_детерминирован():
 
 def test_normalize_убирает_фигурные_кавычки():
     assert library.normalize_title("\u201cЁжик\u201e") == "ежик"
+    assert library.normalize_title("\u201dЁжик\u201d") == "ежик"
 
 from datetime import date
 
@@ -136,3 +137,13 @@ def test_fetch_cover_плохой_тип_и_сеть(tmp_path, monkeypatch, caps
     assert library.fetch_cover("https://x/c.jpg", "b", tmp_path) is None
     err = capsys.readouterr().err
     assert "обложка" in err
+
+
+def test_пустой_слаг_даёт_ошибку():
+    with pytest.raises(AfishaError):
+        library.group_books([_ev("???", "11 августа")])
+
+
+def test_fetch_cover_не_http_ссылка(tmp_path, capsys):
+    assert library.fetch_cover("file:///etc/hosts", "x", tmp_path) is None
+    assert "обложка" in capsys.readouterr().err

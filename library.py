@@ -19,7 +19,7 @@ PLACEHOLDER_STYLES = ("plum", "indigo", "terra", "green", "ink")
 
 
 def normalize_title(title):
-    s = re.sub(r'[«»"\u201e\u201c]', "", title)
+    s = re.sub(r'[«»"\u201e\u201c\u201d]', "", title)
     return " ".join(s.split()).lower().replace("ё", "е")
 
 
@@ -59,6 +59,8 @@ def group_books(past_events):
         b = books.get(key)
         if b is None:
             slug = slugify(e.book)
+            if not slug:
+                raise AfishaError(f"пустой слаг для книги {e.book!r}")
             if slug in by_slug and by_slug[slug] != key:
                 raise AfishaError(f"слаг {slug!r} совпал у разных книг")
             by_slug[slug] = key
@@ -125,6 +127,10 @@ def fetch_cover(url, slug, covers_dir, timeout=20):
     for existing in sorted(covers_dir.glob(f"{slug}.*")):
         return existing
     if not url:
+        return None
+    if not url.startswith(("http://", "https://")):
+        print(f"⚠ обложка {slug}: ссылка не http(s) — пропущена ({url})",
+              file=sys.stderr)
         return None
     try:
         with urllib.request.urlopen(url, timeout=timeout) as resp:
