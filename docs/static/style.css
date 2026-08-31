@@ -77,3 +77,54 @@ blockquote { margin: 1.5em 0; padding-left: 1.25em; border-left: 2px solid var(-
 .home-phrase { font-family: "Old Standard TT", serif; font-size: 1.6rem;
   line-height: 1.35; max-width: 26rem; margin: 1.2em 0 0; }
 .home-orn { color: var(--gold); margin-top: 1.2em; font-size: 1.1em; }
+
+/* «Прочитано»: витрина */
+.lib-counter { color: var(--muted); font-size: 0.9em; }
+.shelf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 1.4rem 1rem; margin: 1rem 0 2rem; }
+.shelf-cell { display: block; text-decoration: none; color: inherit; }
+.cover-img { width: 100%; aspect-ratio: 2/3; object-fit: cover;
+  border-radius: 2px 5px 5px 2px;
+  box-shadow: inset 6px 0 8px -6px rgba(0,0,0,.45), 2px 3px 6px rgba(43,33,24,.25); }
+.cover-ph { width: 100%; aspect-ratio: 2/3; border-radius: 2px 5px 5px 2px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 8% 9%; box-sizing: border-box; position: relative;
+  box-shadow: inset 6px 0 8px -6px rgba(0,0,0,.45), 2px 3px 6px rgba(43,33,24,.25); }
+.cover-ph::before { content: ""; position: absolute; inset: 5% 6%;
+  border: 1px solid rgba(176,141,63,.75); pointer-events: none; }
+.ph-plum { background: linear-gradient(105deg, #4a2b4d, #3a2140); }
+.ph-indigo { background: linear-gradient(105deg, #2b3a67, #1f2b50); }
+.ph-terra { background: linear-gradient(105deg, #a34a2e, #7c3722); }
+.ph-green { background: linear-gradient(105deg, #1f4a38, #143327); }
+.ph-ink { background: linear-gradient(105deg, #4d3b28, #362818); }
+.cover-ph .ph-t { font-family: "Old Standard TT", serif; font-weight: 700;
+  font-size: 0.85rem; line-height: 1.25; color: #f0e6c8; }
+.cover-ph .ph-a { font-family: "Old Standard TT", serif; font-style: italic;
+  font-size: 0.7rem; color: rgba(240,230,200,.75); margin-top: 0.4em; }
+.cover-ph .ph-orn { color: var(--gold); font-size: 0.8rem; margin-top: 0.5em; }
+.cell-title { display: block; font-family: "Old Standard TT", serif; font-weight: 700;
+  font-size: 0.85rem; line-height: 1.2; margin-top: 0.5em; }
+.cell-club { display: block; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+
+/* «Прочитано»: страница книги */
+.book-author { font-family: "Old Standard TT", serif; font-style: italic;
+  color: var(--muted); font-size: 1.15rem; margin: 0.2em 0 0; }
+.spread { display: flex; gap: 1.5rem; margin-top: 1.2rem; }
+.spread-cover { width: 30%; flex-shrink: 0; }
+.spread-body { flex: 1; min-width: 0; }
+.sect { font-variant-caps: all-small-caps; letter-spacing: 0.12em; color: var(--terra);
+  font-size: 1rem; font-weight: 400; margin: 1.2em 0 0.4em; }
+.spread-body .sect:first-child { margin-top: 0; }
+.about > p:first-of-type::first-letter { font-family: "Old Standard TT", serif;
+  font-size: 2.6em; float: left; line-height: 0.85; padding: 0.05em 0.1em 0 0;
+  color: var(--indigo); }
+.disc { border-top: 1px solid rgba(176,141,63,.45); padding: 0.6em 0 0.4em; }
+.disc-head { margin: 0; }
+.disc-date { color: var(--indigo); font-variant-caps: all-small-caps; }
+.disc-head a { color: var(--muted); }
+.disc-summary { margin: 0.3em 0; }
+.disc-review { margin: 0.2em 0; font-size: 0.9em; }
+@media (max-width: 40rem) {
+  .spread { flex-direction: column; }
+  .spread-cover { width: 60%; margin: 0 auto; }
+}

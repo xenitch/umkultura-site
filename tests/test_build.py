@@ -20,6 +20,9 @@ def test_полная_сборка(tmp_path):
     ann = root / "content/bookclubs/library/elegantnost-ezhika.md"
     ann.write_text("---\ntitle: «Элегантность ёжика»\nauthor: Мюриель Барбери\n---\n"
                    "Роман о консьержке-философе.\n", encoding="utf-8")
+    # martin-iden теперь и в реальном content/ имеет аннотацию (Task 7);
+    # здесь он нарочно остаётся без неё — проверяем ветку «нет аннотации».
+    (root / "content/bookclubs/library/martin-iden.md").unlink(missing_ok=True)
     build.build(root, today=date(2026, 9, 1), fetch=lambda cache: CSV_REAL,
                 cover_fetch=lambda url, slug, d: None)
     out = root / "docs"
