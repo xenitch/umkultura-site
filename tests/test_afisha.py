@@ -256,3 +256,42 @@ def test_список_дней_со_словом_месяцем():
 
 def test_диапазон_через_дефис_показывается_тире():
     assert parse_date_field("1-15 октября").display == "1—15 октября"
+
+
+CSV_REAL = """,,,,,,"НЕОБЯЗАТЕЛЬНО! Для страницы «Прочитано»",,
+Дата обсуждения,Книга,Автор,В каком клубе обсуждают,Ссылка на клуб,год (для определения архива),Ссылка на обложку,Резюме обсуждения,Ссылка на рецензию
+,,,,,,ссылка на картинку,"краткий текст, до 300 символов",публикация клуба
+11 августа,«Элегантность ёжика»,Мюриель Барбери,Это просто книжный клуб,https://vk.ru/prosto_book_club,2026,https://example.com/hedgehog.jpg,"Говорили о невидимых людях",https://vk.ru/wall-1_1
+август,«Мартин Иден»,Джек Лондон,Клуб нескучных чтений,https://libertrino.ru,2026,,,
+6 октября,будет голосование в группе клуба,,Это просто книжный клуб,https://vk.ru/prosto_book_club,2026,,,
+"""
+
+
+def test_преамбула_над_шапкой_не_мешает():
+    events = afisha.load_events(CSV_REAL)
+    assert len(events) == 3
+    assert events[0].book == "«Элегантность ёжика»"
+
+
+def test_строка_пояснений_под_шапкой_пропускается():
+    events = afisha.load_events(CSV_REAL)
+    assert all(e.club for e in events)  # пояснения не стали событием
+
+
+def test_номер_строки_считается_от_реального_листа():
+    bad = CSV_REAL + "потом,«Книга»,Автор,Клуб,https://example.com,2026,,,\n"
+    with pytest.raises(AfishaError, match="строка 7"):
+        afisha.load_events(bad)
+
+
+def test_шапка_не_нашлась_в_10_строках():
+    with pytest.raises(AfishaError, match="не нашлась шапка"):
+        afisha.load_events("а,б\nв,г\n")
+
+
+def test_fetch_принимает_csv_с_преамбулой(tmp_path, monkeypatch):
+    monkeypatch.setattr(afisha.urllib.request, "urlopen",
+                        lambda url, timeout: _FakeResponse(CSV_REAL.encode("utf-8")))
+    cache = tmp_path / "afisha.csv"
+    assert afisha.fetch_csv(cache) == CSV_REAL     # не принял за мусор
+    assert cache.read_text(encoding="utf-8") == CSV_REAL

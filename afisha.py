@@ -92,14 +92,23 @@ class Event:
 
 
 def load_events(csv_text):
+    lines = csv_text.splitlines(keepends=True)
+    header_at = next((i for i, ln in enumerate(lines[:10])
+                      if "Дата обсуждения" in ln), None)
+    if header_at is None:
+        raise AfishaError("не нашлась шапка «Дата обсуждения» в первых 10 строках")
     events = []
     ended = False  # первая пустая строка объявляет таблицу событий закрытой
-    for i, raw_row in enumerate(csv.DictReader(io.StringIO(csv_text)), start=2):
+    reader = csv.DictReader(io.StringIO("".join(lines[header_at:])))
+    for i, raw_row in enumerate(reader, start=header_at + 2):
         row = {(k or "").strip(): (v or "").strip() for k, v in raw_row.items()}
         year_key = next((k for k in row if k.lower().startswith("год")), "")
         if not any(row.values()):
             ended = True
             continue
+        if not (row.get("Дата обсуждения", "") or row.get("Книга", "")
+                or row.get(year_key, "")):
+            continue  # строка-пояснение для модераторов — не событие
         if ended:
             # Хвост листа после первой пустой строки: в реальной таблице
             # там справочник клубов — у него всегда пуст год. Если год
@@ -177,8 +186,8 @@ def fetch_csv(cache_path, url=CSV_URL, timeout=20):
     try:
         with urllib.request.urlopen(url, timeout=timeout) as resp:
             text = resp.read().decode("utf-8")
-        first_line = text.split("\n", 1)[0]
-        if "Дата обсуждения" not in first_line:
+        head = "\n".join(text.split("\n")[:10])
+        if "Дата обсуждения" not in head:
             raise ValueError("непохоже на CSV афиши")
     except (OSError, UnicodeDecodeError, ValueError):
         if cache_path.exists():
