@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="prose book">
+  <header class="page-header">
+    <p class="kicker">Прочитано</p>
+    <h1>{{ book.title | e }}</h1>
+    {% if book.author %}<p class="book-author">{{ book.author | e }}</p>{% endif %}
+  </header>
+  <div class="spread">
+    <div class="spread-cover">
+      {% if book.cover_file %}<img class="cover-img" src="{{ book.cover_file }}" alt="{{ book.title | e }}">
+      {% else %}<span class="cover-ph ph-{{ book.style }}"><span class="ph-t">{{ book.title | e }}</span>
+        {% if book.author %}<span class="ph-a">{{ book.author | e }}</span>{% endif %}
+        <span class="ph-orn">❦</span></span>{% endif %}
+    </div>
+    <div class="spread-body">
+      {% if book.about %}
+      <h2 class="sect">О книге</h2>
+      <div class="about">{{ book.about }}</div>
+      {% endif %}
+      <h2 class="sect">Чтения и обсуждения</h2>
+      {% for d in discussions %}
+      <div class="disc">
+        <p class="disc-head"><span class="disc-date">{{ d.date | e }}</span> · <a href="{{ d.contact | e }}">{{ d.club | e }}</a></p>
+        {% if d.summary %}<p class="disc-summary">{{ d.summary | e }}</p>{% endif %}
+        {% if d.review_url %}<p class="disc-review"><a href="{{ d.review_url | e }}">Рецензия клуба →</a></p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <p class="backlink"><a href="/bookclubs/library/">← Ко всем прочитанным книгам</a></p>
+  <p class="fleuron">❦</p>
+</article>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="prose">
+  <header class="page-header">
+    <p class="kicker">{{ page.meta.kicker | e }}</p>
+    <h1>{{ page.meta.title | e }}</h1>
+  </header>
+  {{ page.content }}
+  <p class="lib-counter">{{ library_counter | e }}</p>
+</article>
+<section class="showcase">
+  {% for label, books in showcase_groups %}
+  <h2 class="toc-month">{{ label }}</h2>
+  <div class="shelf-grid">
+    {% for b in books %}
+    <a class="shelf-cell" href="/bookclubs/library/{{ b.slug }}/">
+      {% if b.cover_file %}<img class="cover-img" src="{{ b.cover_file }}" alt="{{ b.title | e }}">
+      {% else %}<span class="cover-ph ph-{{ b.style }}"><span class="ph-t">{{ b.title | e }}</span>
+        {% if b.author %}<span class="ph-a">{{ b.author | e }}</span>{% endif %}
+        <span class="ph-orn">❦</span></span>{% endif %}
+      <span class="cell-title">{{ b.title | e }}</span>
+      <span class="cell-club">{{ b.clubs_caption | e }}</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endfor %}
+  <p class="fleuron">❦</p>
+</section>
+{% endblock %}
