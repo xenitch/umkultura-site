@@ -1,5 +1,7 @@
 import pytest
 
+from pathlib import Path
+
 import library
 
 
@@ -86,3 +88,51 @@ def test_discussion_date():
 
 def test_counter_text():
     assert library.counter_text(8) == "8 книг прочитано клубами с августа 2026"
+
+
+import io as _io
+
+
+class _Resp(_io.BytesIO):
+    def __init__(self, data, ctype="image/jpeg"):
+        super().__init__(data)
+        self._ctype = ctype
+
+    @property
+    def headers(self):
+        class H:
+            def __init__(self, ct): self._ct = ct
+            def get_content_type(self): return self._ct
+        return H(self._ctype)
+
+    def __enter__(self): return self
+
+    def __exit__(self, *a): pass
+
+
+def test_fetch_cover_скачивает_и_кеширует(tmp_path, monkeypatch):
+    calls = []
+    def fake(url, timeout):
+        calls.append(url)
+        return _Resp(b"JPEG", "image/jpeg")
+    monkeypatch.setattr(library.urllib.request, "urlopen", fake)
+    p = library.fetch_cover("https://x/c.jpg", "ezhik", tmp_path)
+    assert p.name == "ezhik.jpg" and p.read_bytes() == b"JPEG"
+    p2 = library.fetch_cover("https://x/c.jpg", "ezhik", tmp_path)
+    assert p2 == p and calls == ["https://x/c.jpg"]   # второй раз не качал
+
+
+def test_fetch_cover_без_ссылки():
+    assert library.fetch_cover("", "ezhik", Path("/nonexistent")) is None
+
+
+def test_fetch_cover_плохой_тип_и_сеть(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(library.urllib.request, "urlopen",
+                        lambda url, timeout: _Resp(b"<html>", "text/html"))
+    assert library.fetch_cover("https://x/page", "a", tmp_path) is None
+    def boom(url, timeout):
+        raise OSError("нет сети")
+    monkeypatch.setattr(library.urllib.request, "urlopen", boom)
+    assert library.fetch_cover("https://x/c.jpg", "b", tmp_path) is None
+    err = capsys.readouterr().err
+    assert "обложка" in err

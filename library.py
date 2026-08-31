@@ -115,3 +115,29 @@ def discussion_date(event):
 def counter_text(n):
     return (f"{n} {ru_plural(n, 'книга', 'книги', 'книг')} "
             "прочитано клубами с августа 2026")
+
+
+COVER_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
+
+
+def fetch_cover(url, slug, covers_dir, timeout=20):
+    covers_dir = Path(covers_dir)
+    for existing in sorted(covers_dir.glob(f"{slug}.*")):
+        return existing
+    if not url:
+        return None
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as resp:
+            ext = COVER_TYPES.get(resp.headers.get_content_type())
+            if not ext:
+                print(f"⚠ обложка {slug}: неожиданный тип содержимого ({url})",
+                      file=sys.stderr)
+                return None
+            data = resp.read()
+    except OSError:
+        print(f"⚠ обложка {slug}: не скачалась ({url})", file=sys.stderr)
+        return None
+    covers_dir.mkdir(parents=True, exist_ok=True)
+    path = covers_dir / f"{slug}.{ext}"
+    path.write_bytes(data)
+    return path
