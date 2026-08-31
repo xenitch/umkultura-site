@@ -19,7 +19,7 @@ PLACEHOLDER_STYLES = ("plum", "indigo", "terra", "green", "ink")
 
 
 def normalize_title(title):
-    s = re.sub(r'[«»"„"]', "", title)
+    s = re.sub(r'[«»"\u201e\u201c]', "", title)
     return " ".join(s.split()).lower().replace("ё", "е")
 
 

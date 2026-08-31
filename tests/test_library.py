@@ -23,3 +23,7 @@ def test_placeholder_style_детерминирован():
     s = library.placeholder_style("elegantnost-ezhika")
     assert s in ("plum", "indigo", "terra", "green", "ink")
     assert s == library.placeholder_style("elegantnost-ezhika")
+
+
+def test_normalize_убирает_фигурные_кавычки():
+    assert library.normalize_title("\u201cЁжик\u201e") == "ежик"
