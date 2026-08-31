@@ -89,6 +89,17 @@ class Event:
     year: int
     when: ParsedDate
     is_vote: bool = False
+    cover_url: str = ""
+    summary: str = ""
+    review_url: str = ""
+
+
+def _find(row, *needles):
+    for k, v in row.items():
+        kl = k.lower()
+        if all(n in kl for n in needles):
+            return v
+    return ""
 
 
 def load_events(csv_text):
@@ -131,8 +142,10 @@ def load_events(csv_text):
             book="Книгу выберут голосованием" if is_vote else book,
             author=row.get("Автор", ""),
             club=row.get("В каком клубе обсуждают", ""),
-            contact=next((v for k, v in row.items()
-                          if k.lower().startswith(("контакт", "ссылка"))), ""),
+            contact=_find(row, "ссылка", "клуб") or _find(row, "контакт"),
+            cover_url=_find(row, "обложк"),
+            summary=_find(row, "резюме"),
+            review_url=_find(row, "реценз"),
             year=year, when=when, is_vote=is_vote))
     return events
 

@@ -295,3 +295,16 @@ def test_fetch_принимает_csv_с_преамбулой(tmp_path, monkeypa
     cache = tmp_path / "afisha.csv"
     assert afisha.fetch_csv(cache) == CSV_REAL     # не принял за мусор
     assert cache.read_text(encoding="utf-8") == CSV_REAL
+
+
+def test_новые_поля_обсуждения():
+    e = afisha.load_events(CSV_REAL)[0]
+    assert e.cover_url == "https://example.com/hedgehog.jpg"
+    assert e.summary == "Говорили о невидимых людях"
+    assert e.review_url == "https://vk.ru/wall-1_1"
+    assert e.contact == "https://vk.ru/prosto_book_club"   # не спутал с обложкой
+
+
+def test_новые_поля_пустые_по_умолчанию():
+    e = afisha.load_events(CSV_REAL)[1]
+    assert (e.cover_url, e.summary, e.review_url) == ("", "", "")
