@@ -30,6 +30,8 @@ class ParsedDate:
     month: int
     days: list        # [] — известен только месяц
     display: str      # «10 августа», «13 и 15 августа», «в течение месяца»
+    end_month: int = 0   # диапазон через границу месяцев: месяц конца…
+    end_day: int = 0     # …и день конца (0 — диапазон внутри одного месяца)
 
 
 def parse_date_field(raw):
@@ -44,6 +46,16 @@ def parse_date_field(raw):
         if not 1 <= day <= 31:
             raise AfishaError(f"нет такого дня: {raw!r}")
         return ParsedDate(MONTHS_GEN[m.group(2)], [day], f"{day} {m.group(2)}")
+    # Диапазон через границу месяцев: «20 сентября—20 октября»
+    m = (re.fullmatch(r"(\d{1,2}) ([а-я]+) ?[—–-] ?(\d{1,2}) ([а-я]+)", s)
+         or re.fullmatch(r"с (\d{1,2}) ([а-я]+) по (\d{1,2}) ([а-я]+)", s))
+    if m and m.group(2) in MONTHS_GEN and m.group(4) in MONTHS_GEN:
+        d1, d2 = int(m.group(1)), int(m.group(3))
+        if not (1 <= d1 <= 31 and 1 <= d2 <= 31):
+            raise AfishaError(f"нет такого дня: {raw!r}")
+        return ParsedDate(MONTHS_GEN[m.group(2)], [d1],
+                          f"{d1} {m.group(2)} — {d2} {m.group(4)}",
+                          end_month=MONTHS_GEN[m.group(4)], end_day=d2)
     # Несколько дней со словом-месяцем: «17,19 сентября» → «17 и 19 сентября»
     m = re.fullmatch(r"(\d{1,2}(?: ?[,и] ?\d{1,2})+) ([а-я]+)", s)
     if m and m.group(2) in MONTHS_GEN:
@@ -153,6 +165,9 @@ def load_events(csv_text):
 def is_past(event, today):
     y, m = event.year, event.when.month
     if event.when.days:
+        if event.when.end_month:
+            end_year = y + (event.when.end_month < m)
+            return date(end_year, event.when.end_month, event.when.end_day) < today
         return date(y, m, max(event.when.days)) < today
     first_of_next = date(y + (m == 12), m % 12 + 1, 1)
     return first_of_next <= today

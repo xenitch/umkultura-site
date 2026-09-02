@@ -308,3 +308,24 @@ def test_новые_поля_обсуждения():
 def test_новые_поля_пустые_по_умолчанию():
     e = afisha.load_events(CSV_REAL)[1]
     assert (e.cover_url, e.summary, e.review_url) == ("", "", "")
+
+
+def test_диапазон_через_границу_месяцев():
+    pd = parse_date_field("20 сентября—20 октября")
+    assert (pd.month, pd.days) == (9, [20])
+    assert (pd.end_month, pd.end_day) == (10, 20)
+    assert pd.display == "20 сентября — 20 октября"
+
+
+def test_кроссмесячный_диапазон_уходит_в_архив_после_конца():
+    e = afisha.Event(book="К", author="А", club="Клуб", contact="",
+                     year=2026, when=parse_date_field("20 сентября—20 октября"))
+    assert afisha.is_past(e, date(2026, 10, 20)) is False
+    assert afisha.is_past(e, date(2026, 10, 21)) is True
+
+
+def test_кроссмесячный_диапазон_через_новый_год():
+    e = afisha.Event(book="К", author="А", club="Клуб", contact="",
+                     year=2026, when=parse_date_field("25 декабря—10 января"))
+    assert afisha.is_past(e, date(2027, 1, 10)) is False
+    assert afisha.is_past(e, date(2027, 1, 11)) is True
