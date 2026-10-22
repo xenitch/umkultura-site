@@ -45,7 +45,7 @@ def build(root: Path, today=None, fetch=afisha.fetch_csv,
     content_dir, out = root / "content", root / "docs"
     lib_dir = content_dir / "bookclubs" / "library"
 
-    events = afisha.load_events(fetch(root / "data" / "afisha.csv"))
+    events = afisha.load_events(fetch(root / "data" / "afisha.csv"), today)
     upcoming, past = afisha.split_events(events, today)
     books = library.group_books(past)
     for b in books:

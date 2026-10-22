@@ -72,6 +72,16 @@ def test_load_events_читает_строки():
     assert e.year == 2026 and e.when.month == 8
 
 
+def test_пустой_год_подставляется_от_сегодня():
+    csv_text = CSV + "22 ноября,Тишина в эпоху шума,Эрлинг Кагге,Час души,https://t.me/x,\n" \
+                     "15 января,«Шум»,Канеман,Час души,https://t.me/x,\n"
+    events = afisha.load_events(csv_text, today=date(2026, 10, 25))
+    ноябрь = [e for e in events if e.when.month == 11][0]
+    январь = [e for e in events if e.when.month == 1][0]
+    assert ноябрь.year == 2026   # месяц впереди — текущий год
+    assert январь.year == 2027   # месяц уже прошёл — следующий год
+
+
 def test_строка_голосования():
     e = afisha.load_events(CSV)[2]
     assert e.is_vote is True

@@ -118,7 +118,7 @@ def _find(row, *needles):
     return ""
 
 
-def load_events(csv_text):
+def load_events(csv_text, today=None):
     lines = csv_text.splitlines(keepends=True)
     header_at = next((i for i, ln in enumerate(lines[:10])
                       if "Дата обсуждения" in ln), None)
@@ -148,8 +148,15 @@ def load_events(csv_text):
                     "считается её концом)")
             continue
         try:
-            year = int(row.get(year_key, ""))
             when = parse_date_field(row.get("Дата обсуждения", ""))
+            raw_year = row.get(year_key, "")
+            if raw_year:
+                year = int(raw_year)
+            else:
+                # Год не заполнен: событие будущее, год выводим от сегодняшней даты —
+                # месяц уже прошёл в этом году, значит речь про следующий.
+                t = today or date.today()
+                year = t.year + (1 if when.month < t.month else 0)
         except (AfishaError, ValueError) as exc:
             raise AfishaError(f"строка {i}: {exc}") from None
         book = row.get("Книга", "")
