@@ -40,6 +40,10 @@ def parse_date_field(raw):
         raise AfishaError("пустая дата")
     if s in MONTHS_NOM:
         return ParsedDate(MONTHS_NOM[s], [], "в течение месяца")
+    # Расплывчатая часть месяца: «в начале/в середине/в конце ноября» — показываем как написано
+    m = re.fullmatch(r"в (?:начале|середине|конце) ([а-я]+)", s)
+    if m and m.group(1) in MONTHS_GEN:
+        return ParsedDate(MONTHS_GEN[m.group(1)], [], s)
     m = re.fullmatch(r"(\d{1,2}) ([а-я]+)", s)
     if m and m.group(2) in MONTHS_GEN:
         day = int(m.group(1))

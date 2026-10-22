@@ -16,6 +16,12 @@ def test_только_месяц():
     assert (pd.month, pd.days, pd.display) == (8, [], "в течение месяца")
 
 
+def test_расплывчатая_часть_месяца():
+    for phrase, month in [("в конце ноября", 11), ("в начале мая", 5), ("в середине августа", 8)]:
+        pd = parse_date_field(phrase)
+        assert (pd.month, pd.days, pd.display) == (month, [], phrase)
+
+
 def test_несколько_числовых_дат():
     pd = parse_date_field("13.08, 15.08")
     assert (pd.month, pd.days, pd.display) == (8, [13, 15], "13 и 15 августа")
